@@ -165,6 +165,44 @@ class AdjacencyList:
         return count
 
     ###
+    # Helper functions
+    ###
+    #Returns a list of all edges connected to a node
+    def list_of_edges(self):
+        if self.is_empty():
+            return []
+        else:
+            edge_list = []
+            edge_head = self.edges()
+            while not edge_head.is_empty():
+                edge_list.append(edge_head)
+                edge_head = edge_head.tail()
+            return edge_list
+    #Returns a list of the names of all nodes in an adjacencyList 
+    def list_of_node_names(self):
+        names = []
+        if self.is_empty():
+            return []
+        head = self
+        while not head.is_empty():
+            names.append(head.name())
+            head = head.tail()
+        return names
+
+    def get_node_list(self):
+        if self.is_empty():
+            return []
+        nodeList = []
+        head = self
+        while not head.is_empty():
+            nodeList.append(head)
+            head = head.tail()
+        return nodeList
+        
+        
+
+
+    ###
     # Edge operations
     ###
     def add_edge(self, src, dst, weight=1):
@@ -205,6 +243,12 @@ class AdjacencyList:
         Returns an adjacency list head.
         '''
         log.info("TODO: delete_edge()")
+        if self.head().is_empty():
+            return self.head()
+        if src == self.name():
+            self.set_edges(self.edges().delete(dst))
+        elif src > self.name():
+            self.tail().delete_edge(src, dst)
         return self.head()
 
     def delete_edges(self, name):
@@ -214,7 +258,19 @@ class AdjacencyList:
         Returns an adjacency list head.
         '''
         log.info("TODO: delete_edges()")
-        return self.head()
+        '''
+        edgeList = self.edges().list()
+        for x in edgeList:
+            x.delete(x.dst())
+        if not self.is_empty():
+            self.tail().delete_edges(name)
+        '''
+        if self.head().is_empty():
+            return self.head()
+        else:
+            self.set_edges(self.edges().delete(name))
+            self.tail().delete_edges(name)
+        return self.head() 
 
     def find_edge(self, src, dst):
         '''
@@ -247,7 +303,18 @@ class AdjacencyList:
         defined as a node that has an edge towards itself, e.g., A->A.
         '''
         log.info("TODO: self_loops()")
-        return 0
+        if self.is_empty():
+            return 0
+        edgeList = self.list_of_edges()
+        count = 0
+        head = self
+        while not head.is_empty():
+            for x in edgeList:
+                if head.name() == x.dst():
+                    count += 1
+            head = head.tail()
+            edgeList = head.list_of_edges()
+        return count
 
     def adjacency_matrix(self):
         '''
@@ -282,12 +349,31 @@ class AdjacencyList:
         '''
         if self.is_empty():
             return [[]]
-
-        
-        # In case you'd like to create an inf-initialized n x n matrix
+       
+        edgeList = self.list_of_edges()
+        nameList = self.list_of_node_names()
         n = self.node_cardinality()
         matrix = [ [inf]*n for i in range(n) ]
-        log.info("TODO: adjacency_matrix()")
+        listToAdd = []
+        for x in range(n):
+            listToAdd.append(inf)
+        print(nameList)
+        head = self
+        count = 0
+        while not head.is_empty():
+            for x in edgeList:
+                if x.dst() is not None:
+                    #listToAdd.insert(nameList.index(x.dst()), x.weight())
+                    listToAdd[nameList.index(x.dst())] = x.weight()
+            #matrix.insert(count, listToAdd)
+            matrix[count] = listToAdd
+            count += 1
+            head = head.tail() 
+            listToAdd = []
+            edgeList = head.list_of_edges()
+            for x in range(n):
+                listToAdd.append(inf)
+
         return matrix
         
 
@@ -413,7 +499,22 @@ class Edge:
 
         Returns an edge head.
         '''
+        '''
+        if self.head().is_empty():
+            return self.head()
+        if self.name() == name:
+            return self.tail()
+        elif name > self.name():
+            return self.cons(self.tail().delete_node(name))
+        return self.head(
+        '''
         log.info("TODO: delete()")
+        if self.is_empty():
+            return self.head()
+        if self.dst() == dst:
+            return self.tail()
+        elif dst > self.dst():
+            return self.cons(self.tail().delete(dst))
         return self.head()
 
     def find(self, dst):

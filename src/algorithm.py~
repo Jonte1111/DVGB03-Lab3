@@ -63,7 +63,7 @@ def dijkstra(adjlist, start_node):
     size = len(unvisited)
     for x in range(size):
         d.append(max_value)
-    d.index(start_node) = 0
+    d[start_node] = 0
 
     while unvisited:
         current_min_node = None
